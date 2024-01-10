@@ -8,6 +8,9 @@ class Challenge:
         
     def open_browser(self, url: str) -> None:
         self.driver.open_available_browser(url, maximized = True)
+
+    def accept_cookies(self) -> None:
+        self.driver.click_button_when_visible(Home.Button.ACCEPT_COOKIES)
     
     def search(self, text: str) -> None:
         self.driver.click_button(Home.Button.SEARCH)
@@ -18,22 +21,25 @@ class Challenge:
         self.driver.select_from_list_by_value(News.Select.SORT, News.Select.VALUE)
         sleep(3)
 
+    def show_more(self) -> None:
+        print("Clicking button 'Show More'")
+        self.driver.click_element_when_clickable(News.Button.SHOW_MORE)
+
     def run(self) -> None:
         self.open_browser(Variables.URL)
+        self.accept_cookies()
         self.search(Variables.SEARCH_PHRASE)
         self.sort_news()
 
         self.dates_elements = self.driver.find_elements(News.Span.DATES)
 
-        show_more = True
+        self.last_date = self.dates_elements[-1].get_attribute('aria-label')
 
-        while show_more:
-            for date_element in self.dates_elements:
-                try:
-                    date_to_analyze = date_element.get_attribute("aria-label")
-                    result = is_date_between(self.start_date, date_to_analyze, self.end_date)
-                    print(f"Analyzing date {date_to_analyze}\nResult: {result}")
-                except:
-                    pass
+        print(self.last_date)
+        self.need_to_show_more = is_date_between(self.start_date, self.last_date, self.end_date)
+        print("Need to show more:", self.need_to_show_more)
+
+        if self.need_to_show_more:
+            self.show_more()
 
         sleep(999)
