@@ -1,5 +1,8 @@
 from challenge import Challenge
 
 if __name__ == '__main__':
-    challenge = Challenge()
-    challenge.run()
+    try:
+        challenge = Challenge()
+        challenge.run()
+    except KeyboardInterrupt:
+        print("Finishing...")

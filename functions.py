@@ -1,4 +1,9 @@
 from datetime import datetime, timedelta
+import os
+from time import sleep
+import openpyxl
+import requests
+import uuid
 
 def today():
     return datetime.now().strftime("%m/%d/%Y")
@@ -61,3 +66,54 @@ def get_start_date(months: int) -> str:
 
 def get_end_date() -> str:
     return today()
+
+def close_all_browsers() -> None:
+    print("Closing every Google Chrome opened - if any")
+    os.system("taskkill /f /im chrome.exe")
+
+def stop() -> None:
+    print("Stopped job execution")
+    sleep(999999)
+
+def download_image(url, folder):
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+
+    response = requests.get(url)
+    if response.status_code == 200:
+        file_name = os.path.join(folder, f"{str(uuid.uuid4())}.jpg")
+        with open(file_name, 'wb') as file:
+            file.write(response.content)
+        print(f'Image downloaded successfully: {file_name}')
+        return file_name
+    else:
+        print(f'Failed to download image. Status code: {response.status_code}')
+        return False
+
+def create_excel_file(file_path, data):
+    print("Creating excel file")
+    # Cria uma nova planilha
+    workbook = openpyxl.Workbook()
+
+    # Seleciona a planilha ativa
+    sheet = workbook.active
+
+    # Adiciona cabeçalhos
+    headers = ["title", "date", "description", "picture filename"]
+    sheet.append(headers)
+
+    # Adiciona os dados
+    for item in data:
+
+        # Adiciona os dados à planilha
+        row_data = [
+            item["title"],
+            item["date"],
+            item["description"],
+            item["image_file_name"]
+        ]
+        sheet.append(row_data)
+
+    # Salva a planilha no file especificado
+    workbook.save(file_path)
+    print("Excel file created succesfully")

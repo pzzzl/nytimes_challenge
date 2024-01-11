@@ -6,3 +6,5 @@ class Variables:
     SECTIONS = []
 
     MONTHS = 2
+
+    IMG_FOLDER = "C:\\git\\nytimes_challenge\\img"
