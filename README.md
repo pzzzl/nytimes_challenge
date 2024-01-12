@@ -50,7 +50,7 @@ To execute the challenge script, follow these steps:
 
 ## Configuration
 
-Adjust the configuration in `imports.py` to customize the script's behavior. Modify variables such as `SEARCH_PHRASE`, `SECTIONS`, and `MONTHS` to tailor the script to your specific needs.
+Adjust the configuration in `config.py` to customize the script's behavior. Modify variables such as `SEARCH_PHRASE`, `SECTIONS`, and `MONTHS` to tailor the script to your specific needs.
 
 ## File Descriptions
 
