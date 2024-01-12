@@ -2,6 +2,12 @@ from imports import *
 
 class Challenge:
     def __init__(self):
+        """
+        Initializes the Challenge class.
+
+        Closes all open browsers, initializes Selenium, retrieves the start and end dates,
+        prints relevant information, and deletes specific paths.
+        """
         close_all_browsers()
         self.driver = Selenium()
         self.start_date = get_start_date(Variables.MONTHS)
@@ -9,34 +15,80 @@ class Challenge:
         print("Months:", Variables.MONTHS)
         print("Start date:", self.start_date)
         print("End date:", self.end_date)
-        
+        delete_paths([Variables.EXCEL_FILE, Variables.IMG_FOLDER])
+
     def open_browser(self, url: str) -> None:
+        """
+        Opens a browser with the provided URL.
+
+        Args:
+        url (str): The URL to open in the browser.
+        """
         print("Opening browser")
-        self.driver.open_available_browser(url, maximized = True)
+        self.driver.open_available_browser(url, maximized=True)
 
     def accept_cookies(self) -> None:
+        """
+        Accepts cookies by clicking the corresponding button if available.
+        """
         print("Accepting cookies")
-        self.driver.click_element_when_clickable(Home_Page.Button.ACCEPT_COOKIES)
-    
+        try:
+            self.driver.click_element_when_clickable(Home_Page.Button.ACCEPT_COOKIES)
+        except:
+            print("Unable to find the accept cookies button")
+
     def search(self, text: str) -> None:
+        """
+        Searches for a given phrase.
+
+        Args:
+        text (str): The text to search for.
+        """
         print(f"Searching for phrase '{text}'")
         self.driver.click_button(Home_Page.Button.SEARCH)
         self.driver.input_text_when_element_is_visible(Home_Page.Input.SEARCH, text)
         self.driver.click_element_when_clickable(Home_Page.Button.GO)
 
+    def set_sections(self, sections: list) -> None:
+        """
+        Sets the sections to filter news.
+
+        Args:
+        sections (list): List of sections to select.
+        """
+        if sections:
+            print("Sections:", sections)
+            self.driver.click_element_when_clickable(News_Page.Label.SECTION)
+            for section in sections:
+                print("Selecting section", section)
+                try:
+                    self.driver.click_element_when_clickable(f"xpath://span[text()='{section}']/preceding::input[1]")
+                except:
+                    print(f"Unable to select the '{section}' section")
+        else:
+            print("Keeping the default section (Any)")
+
     def sort_news(self) -> None:
-        print("Sorting news by latest")
+        """
+        Sorts news by the latest date.
+        """
+        print("Sorting news by the latest")
         self.driver.select_from_list_by_value(News_Page.Select.SORT, News_Page.Select.VALUE)
         sleep(3)
 
     def check_if_last_date_is_between_start_and_end_dates(self):
-        print("Checking if last date is between start and end dates")
+        """
+        Checks if the last date in the retrieved news is between the start and end dates.
+        """
         self.dates_elements = self.driver.find_elements(News_Page.Span.DATES)
         self.last_date = self.dates_elements[-1].get_attribute('aria-label')
         self.need_to_show_more = is_date_between(self.start_date, self.last_date, self.end_date)
-        print(f"Need to show more: {self.need_to_show_more}")
 
     def show_more_news_routine(self) -> None:
+        """
+        Shows all news that match the criteria by repeatedly clicking the 'Show More' button.
+        """
+        print("Showing all news that match the criteria, please wait...")
         self.check_if_last_date_is_between_start_and_end_dates()
 
         while self.need_to_show_more:
@@ -44,7 +96,16 @@ class Challenge:
             self.check_if_last_date_is_between_start_and_end_dates()
         sleep(3)
 
-    def get_info(self, result_xpath_index):
+    def get_info(self, result_xpath_index: int) -> dict[str, any]:
+        """
+        Retrieves information for a specific news result.
+
+        Args:
+        result_xpath_index (int): The index of the news result in XPath format - starting at 1.
+
+        Returns:
+        dict[str, any]: A dictionary containing information about the news result.
+        """
         base_xpath = f"{News_Page.List_Item.RESULTS}[{result_xpath_index}]/descendant::"
         
         title_xpath = base_xpath + Result.TITLE
@@ -57,7 +118,7 @@ class Challenge:
         try:
             description = self.driver.find_element(description_xpath).text
         except:
-            description = "Missing description"
+            description = ""
         try:
             image_url = self.driver.find_element(image_xpath).get_attribute('src')
             image_file_name = download_image(image_url, Variables.IMG_FOLDER)
@@ -71,12 +132,18 @@ class Challenge:
         "title": title,
         "date": date,
         "description": description,
-        "image_file_name": image_file_name
+        "image_file_name": image_file_name,
+        "count_title": count_occurrences(title, Variables.SEARCH_PHRASE),
+        "count_description": count_occurrences(description, Variables.SEARCH_PHRASE),
+        "contains_money": verify_money_format(title) or verify_money_format(description)
         }
 
         return obj
 
-    def get_news(self):
+    def get_news(self) -> None:
+        """
+        Retrieves news information based on specified criteria.
+        """
         self.news = []
         all_news = self.driver.find_elements(News_Page.List_Item.RESULTS)
 
@@ -89,18 +156,20 @@ class Challenge:
                 break
             else:
                 self.news.append(info)
-                print(json.dumps(info, indent = 2, ensure_ascii = False))
+                print(json.dumps(info, indent=2, ensure_ascii=False))
 
         print("Found news:", len(self.news))
-            
-
 
     def run(self) -> None:
+        """
+        Executes the entire process to retrieve and process news information.
+        """
         self.open_browser(Variables.URL)
         self.accept_cookies()
         self.search(Variables.SEARCH_PHRASE)
+        self.set_sections(Variables.SECTIONS)
         self.sort_news()
         self.show_more_news_routine()
         self.get_news()
-        create_excel_file("C:/git/nytimes_challenge/result.xlsx", self.news)
+        create_excel_file(Variables.EXCEL_FILE, self.news)
         close_all_browsers()

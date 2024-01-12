@@ -1,11 +1,19 @@
 from datetime import datetime, timedelta
 import os
-from time import sleep
 import openpyxl
 import requests
 import uuid
+import shutil
+import re
+from time import sleep
 
-def today():
+def today() -> str:
+    """
+    Get the current date in the format 'MM/DD/YYYY'.
+
+    Returns:
+    - str: The current date.
+    """
     return datetime.now().strftime("%m/%d/%Y")
 
 def is_date_between(start_date_str: str, target_date_str: str, end_date_str: str) -> bool:
@@ -21,6 +29,9 @@ def is_date_between(start_date_str: str, target_date_str: str, end_date_str: str
     Returns:
     - bool: True if the target date is between the start and end dates (inclusive), False otherwise.
     """
+    if "hours" in target_date_str:
+        return True
+
     try:
         # Attempt to parse the target date with the full format including the year
         target_date = datetime.strptime(target_date_str, '%B %d, %Y')
@@ -62,20 +73,51 @@ def get_previous_months(num_months: int) -> list[str]:
     return result
 
 def get_start_date(months: int) -> str:
+    """
+    Get the start date based on the specified number of previous months.
+
+    Parameters:
+    - months (int): The number of previous months.
+
+    Returns:
+    - str: The start date in the format MM/DD/YYYY.
+    """
     return get_previous_months(months)[-1]
 
 def get_end_date() -> str:
+    """
+    Get the current date as the end date.
+
+    Returns:
+    - str: The end date in the format MM/DD/YYYY.
+    """
     return today()
 
 def close_all_browsers() -> None:
+    """
+    Close all open Google Chrome instances forcefully.
+    """
     print("Closing every Google Chrome opened - if any")
     os.system("taskkill /f /im chrome.exe")
 
 def stop() -> None:
+    """
+    Stop job execution with a sleep duration of 999999 seconds.
+    """
     print("Stopped job execution")
     sleep(999999)
 
-def download_image(url, folder):
+def download_image(url: str, folder: str) -> str:
+    """
+    Download an image from the given URL and save it to the specified folder.
+
+    Parameters:
+    - url (str): The URL of the image to download.
+    - folder (str): The folder where the image will be saved.
+
+    Returns:
+    - str: The filename of the downloaded image or False if the download fails.
+    """
     if not os.path.exists(folder):
         os.makedirs(folder)
 
@@ -90,30 +132,86 @@ def download_image(url, folder):
         print(f'Failed to download image. Status code: {response.status_code}')
         return False
 
-def create_excel_file(file_path, data):
-    print("Creating excel file")
-    # Cria uma nova planilha
-    workbook = openpyxl.Workbook()
+def create_excel_file(file_path: str, data: list[dict]) -> None:
+    """
+    Create an Excel file with the provided data.
 
-    # Seleciona a planilha ativa
+    Parameters:
+    - file_path (str): The path to save the Excel file.
+    - data (list[dict]): The list of dictionaries containing news information.
+    """
+    print("Creating excel file")
+    workbook = openpyxl.Workbook()
     sheet = workbook.active
 
-    # Adiciona cabeçalhos
-    headers = ["title", "date", "description", "picture filename"]
+    headers = ["Title", "Date", "Description", "Picture Filename", "Title Occurrences", "Description Occurrences", "Contains Money"]
     sheet.append(headers)
 
-    # Adiciona os dados
     for item in data:
-
-        # Adiciona os dados à planilha
         row_data = [
             item["title"],
             item["date"],
             item["description"],
-            item["image_file_name"]
+            item["image_file_name"],
+            item["count_title"],
+            item["count_description"],
+            item["contains_money"]
         ]
+        
         sheet.append(row_data)
 
-    # Salva a planilha no file especificado
     workbook.save(file_path)
-    print("Excel file created succesfully")
+    print("Excel file created successfully")
+
+def delete_paths(paths: list[str]) -> None:
+    """
+    Delete files or folders specified by the given paths.
+
+    Parameters:
+    - paths (list[str]): List of file or folder paths to be deleted.
+    """
+    for path in paths:
+        try:
+            if os.path.isfile(path):
+                os.remove(path)
+                print(f"File {path} removed successfully.")
+            elif os.path.isdir(path):
+                shutil.rmtree(path)
+                print(f"Folder {path} removed successfully.")
+            else:
+                print(f"The given string {path} is not a valid file or folder.")
+        except Exception as e:
+            print(f"Error removing {path}: {e}")
+
+def count_occurrences(s: str, phrase: str) -> int:
+    """
+    Count the occurrences of a phrase in a given string.
+
+    Parameters:
+    - s (str): The input string.
+    - phrase (str): The phrase to search for.
+
+    Returns:
+    - int: The total occurrences of the phrase in the string.
+    """
+    escaped_phrase = re.escape(phrase)
+    pattern = f'\\b{escaped_phrase}\\b'
+    regex = re.compile(pattern, re.IGNORECASE)
+    total_occurrences = len(regex.findall(s))
+    return total_occurrences
+
+def verify_money_format(s: str) -> bool:
+    """
+    Verify if a string contains a valid money format.
+
+    Parameters:
+    - s (str): The input string.
+
+    Returns:
+    - bool: True if the string contains a valid money format, False otherwise.
+    """
+    pattern = r'\$(\d+\.\d+|\d{1,3}(,\d{3})*(\.\d{2})?)|\d+\s(dollars|USD)'
+    if re.search(pattern, s):
+        return True
+    else:
+        return False
