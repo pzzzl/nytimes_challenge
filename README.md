@@ -1,4 +1,4 @@
-# NY Times Scraping - Challenge
+<h1 align='center'>NY Times Scraping - Challenge</h1>
 
 <p align="center">
 <img src='https://img.shields.io/badge/Python-v3.11.7-yellow'>
@@ -6,18 +6,21 @@
 <img src='https://img.shields.io/badge/openpyxl-v3.1.2-red'>
 </p>
 
+<p align='center'>
+<img width=150 src='https://raw.githubusercontent.com/pzzzl/nytimes_challenge/main/public/robot.png?token=GHSAT0AAAAAACMMR3BB776KMMZ4P6UDK4S4ZNAYMOA'>
+</p>
+
 ## Summary
 
-- [NY Times Scraping - Challenge](#ny-times-scraping---challenge)
-  - [Summary](#summary)
-  - [Overview](#overview)
-  - [Notes](#notes)
-  - [Requirements](#requirements)
-  - [Usage](#usage)
-  - [Configuration](#configuration)
-  - [File Descriptions](#file-descriptions)
-  - [Dependencies](#dependencies)
-  - [Important Note](#important-note)
+- [Summary](#summary)
+- [Overview](#overview)
+- [Notes](#notes)
+- [Requirements](#requirements)
+- [Usage](#usage)
+- [Configuration](#configuration)
+- [File Descriptions](#file-descriptions)
+- [Dependencies](#dependencies)
+- [Important Note](#important-note)
 
 ## Overview
 
