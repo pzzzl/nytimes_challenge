@@ -7,7 +7,7 @@
 </p>
 
 <p align='center'>
-<img width=150 src='https://raw.githubusercontent.com/pzzzl/nytimes_challenge/main/public/robot.png?token=GHSAT0AAAAAACMMR3BB776KMMZ4P6UDK4S4ZNAYMOA'>
+<img width=150 src='/public/robot.png'>
 </p>
 
 ## Summary
