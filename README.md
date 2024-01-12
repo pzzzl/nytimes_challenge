@@ -68,4 +68,4 @@ Adjust the configuration in `imports.py` to customize the script's behavior. Mod
 
 ## Important Note
 
-- The script forcefully closes all open Google Chrome instances during execution.
+- The script forcefully closes all open Google Chrome instances during execution. You can change this behavior by modifying the variable `CLOSE_ALL_OPEN_CHROME_INSTANCES` in the `config.py` file.

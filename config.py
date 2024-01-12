@@ -1,3 +1,5 @@
+import os
+
 class Variables:
     # Challenge variables
     SEARCH_PHRASE = "Automation"
@@ -22,5 +24,8 @@ class Variables:
 
     # Complementary
     URL = "https://www.nytimes.com/"
-    IMG_FOLDER = "C:\\git\\nytimes_challenge\\img"
-    EXCEL_FILE = "C:\\git\\nytimes_challenge\\result.xlsx"
+    CLOSE_ALL_OPEN_CHROME_INSTANCES = True
+    IMG_FOLDER = os.path.join(os.getcwd(), "img")
+    EXCEL_FILE = os.path.join(os.getcwd(), "result.xlsx")
+    # IMG_FOLDER = "C:\\git\\nytimes_challenge\\img"
+    # EXCEL_FILE = "C:\\git\\nytimes_challenge\\result.xlsx"

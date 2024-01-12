@@ -97,8 +97,10 @@ def close_all_browsers() -> None:
     """
     Close all open Google Chrome instances forcefully.
     """
-    print("Closing every Google Chrome opened - if any")
-    os.system("taskkill /f /im chrome.exe")
+    from config import Variables
+    if Variables.CLOSE_ALL_OPEN_CHROME_INSTANCES:
+        print("Closing every Google Chrome opened - if any")
+        os.system("taskkill /f /im chrome.exe")
 
 def stop() -> None:
     """
