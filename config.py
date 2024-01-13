@@ -1,8 +1,8 @@
 import os
-
+    
 class Variables:
     # Challenge variables
-    SEARCH_PHRASE = "Automation"
+    SEARCH_PHRASE = "Neymar"
 
     MONTHS = 3
 
