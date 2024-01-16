@@ -17,3 +17,4 @@ testrun/*
 *.pkl
 img
 result.xlsx
+__pycache__
