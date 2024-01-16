@@ -60,6 +60,7 @@ Adjust the configuration in `config.py` to customize the script's behavior. Modi
 - `config.py`: Configuration file containing script parameters.
 - `xpaths.py`: Configuration file containing xpaths used by the automation.
 - `imports.py`: Most of the imports used by the script.
+- `tasks.py`: Task file for Robocorp.
 
 ## Dependencies
 
