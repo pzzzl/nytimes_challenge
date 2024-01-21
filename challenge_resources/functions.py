@@ -35,6 +35,15 @@ def is_date_between(start_date_str: str, target_date_str: str, end_date_str: str
     return start_date <= target_date <= end_date
 
 def get_start_date(months: int) -> str:
+    """
+    Calculates the start date based on the current date and the number of months provided.
+
+    Parameters:
+    - months (int): The number of months to subtract from the current date.
+
+    Returns:
+    - str: A string representing the calculated start date in the format "MM/01/YYYY".
+    """
     current_date = datetime.now()
     if months == 0 or months == 1:
         return current_date.strftime("%m/01/%Y")
