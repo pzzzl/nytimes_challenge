@@ -26,6 +26,5 @@ class Variables:
 
     # Complementary
     URL = "https://www.nytimes.com/"
-    CLOSE_ALL_OPEN_CHROME_INSTANCES = True
     IMG_FOLDER = os.path.join(os.getcwd(), "output")
     EXCEL_FILE = os.path.join(os.getcwd(), "output/result.xlsx")

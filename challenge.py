@@ -1,20 +1,29 @@
-from imports import *
+# Standard libraries
+import json
+from time import sleep
+from datetime import datetime
+
+# Third-party libraries
+from RPA.Browser.Selenium import Selenium
+
+# Local imports
+from config import Variables
+from challenge_resources import is_date_between, get_start_date, download_image, create_excel_file, delete_paths, count_occurrences, verify_money_format
+from challenge_resources import Home_Page, News_Page, Result
 
 class Challenge:
     def __init__(self):
         """
         Initializes the Challenge class.
 
-        Closes all open browsers, initializes Selenium, retrieves the start and end dates,
-        prints relevant information, and deletes specific paths.
+        Initializes Selenium, retrieves the start and end dates,
+        initializes the news list, prints relevant information,
+        and deletes specific paths.
         """
-        close_all_browsers()
         self.driver = Selenium()
         self.start_date = get_start_date(Variables.MONTHS)
-        self.end_date = get_end_date()
-        print("Months:", Variables.MONTHS)
-        print("Start date:", self.start_date)
-        print("End date:", self.end_date)
+        self.end_date = datetime.now().strftime("%m/%d/%Y")
+        self.news = []
         delete_paths([Variables.EXCEL_FILE, Variables.IMG_FOLDER])
 
     def open_browser(self, url: str) -> None:
@@ -76,24 +85,28 @@ class Challenge:
         self.driver.select_from_list_by_value(News_Page.Select.SORT, News_Page.Select.VALUE)
         sleep(3)
 
-    def check_if_last_date_is_between_start_and_end_dates(self):
+    def check_if_last_date_is_between_start_and_end_dates(self) -> bool:
         """
         Checks if the last date in the retrieved news is between the start and end dates.
+
+        Returns:
+            - bool: True if the last date is between the start and end dates (inclusive), False otherwise.
         """
-        self.dates_elements = self.driver.find_elements(News_Page.Span.DATES)
-        self.last_date = self.dates_elements[-1].get_attribute('aria-label')
-        self.need_to_show_more = is_date_between(self.start_date, self.last_date, self.end_date)
+        dates_elements = self.driver.find_elements(News_Page.Span.DATES)
+        last_date = dates_elements[-1].get_attribute('aria-label')
+        last_date_is_between_start_and_end_dates = is_date_between(self.start_date, last_date, self.end_date)
+        return last_date_is_between_start_and_end_dates
 
     def show_more_news_routine(self) -> None:
         """
         Shows all news that match the criteria by repeatedly clicking the 'Show More' button.
         """
         print("Showing all news that match the criteria, please wait...")
-        self.check_if_last_date_is_between_start_and_end_dates()
+        need_to_show_more = self.check_if_last_date_is_between_start_and_end_dates()
 
-        while self.need_to_show_more:
+        while need_to_show_more:
             self.driver.click_element_when_clickable(News_Page.Button.SHOW_MORE)
-            self.check_if_last_date_is_between_start_and_end_dates()
+            need_to_show_more = self.check_if_last_date_is_between_start_and_end_dates()
         sleep(3)
 
     def get_info(self, result_xpath_index: int) -> dict[str, any]:
@@ -144,13 +157,11 @@ class Challenge:
         """
         Retrieves news information based on specified criteria.
         """
-        self.news = []
         all_news = self.driver.find_elements(News_Page.List_Item.RESULTS)
 
-        index = 0
-        for result in all_news:
-            index = index + 1
+        for index, _ in enumerate(all_news, start=1):
             info = self.get_info(index)
+            
             if not is_date_between(self.start_date, info['date'], self.end_date):
                 print(f"The date {info['date']} is not valid. Finishing extraction.")
                 break
@@ -172,4 +183,3 @@ class Challenge:
         self.show_more_news_routine()
         self.get_news()
         create_excel_file(Variables.EXCEL_FILE, self.news)
-        close_all_browsers()

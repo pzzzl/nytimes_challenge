@@ -1,20 +1,6 @@
-from datetime import datetime, timedelta
-import os
-import openpyxl
-import requests
-import uuid
-import shutil
-import re
-from time import sleep
-
-def today() -> str:
-    """
-    Get the current date in the format 'MM/DD/YYYY'.
-
-    Returns:
-    - str: The current date.
-    """
-    return datetime.now().strftime("%m/%d/%Y")
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
+import os, openpyxl, requests, uuid, shutil, re
 
 def is_date_between(start_date_str: str, target_date_str: str, end_date_str: str) -> bool:
     """
@@ -48,66 +34,12 @@ def is_date_between(start_date_str: str, target_date_str: str, end_date_str: str
     # Check if the target date is between the start and end dates (inclusive)
     return start_date <= target_date <= end_date
 
-def get_previous_months(num_months: int) -> list[str]:
-    """
-    Returns a list of dates representing the previous months, in the format MM/01/YYYY,
-    based on the provided number.
-
-    Parameters:
-    - num_months (int): The number of desired months.
-
-    Returns:
-    - List[str]: List of dates in the format MM/01/YYYY.
-    """
-    current_date = datetime.now()
-
-    result = []
-
-    result.append(current_date.strftime("%m/01/%Y"))
-
-    # Subtract one month at a time and add to the list
-    for i in range(1, num_months):
-        current_date = current_date - timedelta(days=current_date.day)
-        result.append(current_date.strftime("%m/01/%Y"))
-
-    return result
-
 def get_start_date(months: int) -> str:
-    """
-    Get the start date based on the specified number of previous months.
-
-    Parameters:
-    - months (int): The number of previous months.
-
-    Returns:
-    - str: The start date in the format MM/DD/YYYY.
-    """
-    return get_previous_months(months)[-1]
-
-def get_end_date() -> str:
-    """
-    Get the current date as the end date.
-
-    Returns:
-    - str: The end date in the format MM/DD/YYYY.
-    """
-    return today()
-
-def close_all_browsers() -> None:
-    """
-    Close all open Google Chrome instances forcefully.
-    """
-    from config import Variables
-    if Variables.CLOSE_ALL_OPEN_CHROME_INSTANCES:
-        print("Closing every Google Chrome opened - if any")
-        os.system("taskkill /f /im chrome.exe")
-
-def stop() -> None:
-    """
-    Stop job execution with a sleep duration of 999999 seconds.
-    """
-    print("Stopped job execution")
-    sleep(999999)
+    current_date = datetime.now()
+    if months == 0 or months == 1:
+        return current_date.strftime("%m/01/%Y")
+    else:
+        return (current_date - relativedelta(months=months-1)).strftime("%m/01/%Y")
 
 def download_image(url: str, folder: str) -> str:
     """
